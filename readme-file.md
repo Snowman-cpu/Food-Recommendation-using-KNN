@@ -1,74 +1,127 @@
-# Recipe Recommendation System
+# Recipe Recommendation System using K-Nearest Neighbors
 
-A machine learning system that recommends similar recipes based on nutritional content using K-Nearest Neighbors algorithm.
+A machine learning-based recipe recommendation system that uses K-Nearest Neighbors (KNN) algorithm with cosine similarity to find similar recipes based on nutritional profiles.
 
-## Overview
+## 🎯 Overview
 
-This project implements a recipe recommendation engine that finds similar recipes based on nutritional profiles. By analyzing features like calories, fat content, carbohydrates, protein, and other nutritional values, the system can suggest recipes that have similar nutritional characteristics to a reference recipe.
+This project implements a content-based recommendation system that analyzes nutritional data from recipes to provide personalized recommendations. The system uses KNN with cosine similarity to identify recipes with similar nutritional profiles, making it ideal for users with specific dietary requirements or preferences.
 
-The recommendation engine uses the K-Nearest Neighbors algorithm with cosine similarity to find the most nutritionally similar recipes in the dataset.
+## 🚀 Features
 
-## Dataset
+- **Nutritional Analysis**: Analyzes 9 key nutritional components (calories, fats, proteins, carbohydrates, etc.)
+- **Cosine Similarity**: Uses cosine distance metric for finding similar recipes
+- **Data Preprocessing**: Includes data cleaning and standardization
+- **Flexible Filtering**: Filter recipes based on ingredients and nutritional constraints
+- **Pipeline Architecture**: Modular design with sklearn pipelines for easy deployment
 
-The project uses a comprehensive recipes dataset with the following key columns:
-- `RecipeId`: Unique identifier for each recipe
-- `Name`: Recipe name
-- `CookTime`: Time required to cook the recipe
-- `PrepTime`: Time required for preparation
-- `TotalTime`: Total time required for the recipe
-- `RecipeIngredientParts`: List of ingredients
-- Nutritional information columns:
-  - `Calories`
-  - `FatContent`
-  - `SaturatedFatContent`
-  - `CholesterolContent`
-  - `SodiumContent`
-  - `CarbohydrateContent`
-  - `FiberContent`
-  - `SugarContent`
-  - `ProteinContent`
-- `RecipeInstructions`: Step-by-step cooking instructions
+## 📊 Dataset
 
-## Features
+The system works with a recipe dataset containing:
+- **522,517 recipes** with 28 columns
+- Key nutritional information per serving
+- Recipe metadata (name, cook time, ingredients, instructions)
+- Author information and ratings
 
-- **Nutritional Profile Matching**: Find recipes with similar nutritional characteristics
-- **Customizable Thresholds**: Set maximum values for nutritional content to filter results
-- **Ingredient Filtering**: Search for recipes containing specific ingredients
-- **Flexible Pipeline**: Modular design allows for easy customization of the recommendation algorithm
+### Nutritional Features Used:
+- Calories
+- Fat Content
+- Saturated Fat Content
+- Cholesterol Content
+- Sodium Content
+- Carbohydrate Content
+- Fiber Content
+- Sugar Content
+- Protein Content
 
-## Technical Implementation
+## 🛠️ Technical Implementation
 
-The recommendation system uses:
+### Core Technologies:
+- **Python 3.x**
+- **Pandas** - Data manipulation and analysis
+- **NumPy** - Numerical computing
+- **Scikit-learn** - Machine learning algorithms
+- **Matplotlib** - Data visualization
+- **SciPy** - Statistical analysis
 
-- **K-Nearest Neighbors (KNN)**: Core algorithm for finding similar recipes
-- **Cosine Similarity**: Metric used to measure recipe similarity
-- **StandardScaler**: Normalizes nutritional features for better comparison
-- **Scikit-learn Pipeline**: Streamlines the data processing and recommendation workflow
+### Algorithm Details:
+- **Algorithm**: K-Nearest Neighbors (KNN)
+- **Distance Metric**: Cosine similarity
+- **Search Method**: Brute force
+- **Preprocessing**: StandardScaler for feature normalization
 
-## Requirements
-
-- Python 3.x
-- NumPy
-- Pandas
-- Scikit-learn
-- Matplotlib (for analysis and visualization)
-- TensorFlow (for potential future advanced models)
-
-## Installation
+## 📋 Installation
 
 ```bash
-pip install numpy pandas scikit-learn matplotlib tensorflow
+# Clone the repository
+git clone <https://github.com/Snowman-cpu/Food-Recommendation-using-KNN.git>
+cd recipe-recommendation-system
+
+# Install required packages
+pip install pandas numpy matplotlib scikit-learn scipy tensorflow
 ```
 
-## Usage
+## 💻 Usage
 
-### Basic Recipe Recommendation
+### Basic Usage
 
 ```python
-# Load the dataset
-dataset = pd.read_csv('recipes.csv')
+import pandas as pd
+import numpy as np
+from recipe_recommender import recommand
 
-# Define nutritional maximums
+# Load your dataset
+df = pd.read_csv('recipes.csv')
+
+# Define nutritional limits (daily values)
+max_list = [2000, 100, 13, 300, 2300, 325, 40, 40, 200]
+
+# Get recommendations for a specific nutritional profile
+# Format: [calories, fat, sat_fat, cholesterol, sodium, carbs, fiber, sugar, protein]
+target_nutrition = np.array([[350, 20, 5, 70, 600, 12, 3, 5, 35]])
+recommendations = recommand(df, target_nutrition, max_list)
+print(recommendations)
+```
+
+### Advanced Usage
+
+```python
+# Filter recipes by ingredient
+egg_recipes = df[df['RecipeIngredientParts'].str.contains("egg", regex=False)]
+
+# Get recommendations from existing recipe
+test_recipe = df.iloc[0:1, 6:15].to_numpy()
+similar_recipes = recommand(df, test_recipe, max_list)
+```
+
+## 🔧 System Architecture
+
+### Data Processing Pipeline:
+1. **Data Loading**: Load recipe dataset
+2. **Data Cleaning**: Filter recipes based on nutritional constraints
+3. **Feature Selection**: Extract relevant nutritional columns
+4. **Standardization**: Apply StandardScaler to normalize features
+5. **Model Training**: Fit KNN model with cosine similarity
+6. **Pipeline Creation**: Build sklearn pipeline for inference
+
+### Key Functions:
+
+- `scaling(dataframe)`: Standardizes nutritional features
+- `nn_predictor(prep_data)`: Creates and fits KNN model
+- `build_pipeline(neigh, scaler, params)`: Builds prediction pipeline
+- `extract_data(dataframe, ingredient_filter, max_nutritional_values)`: Filters dataset
+- `recommand(dataset, input_nutrition, max_list)`: Main recommendation function
+
+## 📈 Model Performance
+
+The system uses cosine similarity which is particularly effective for:
+- High-dimensional nutritional data
+- Handling varying scales of nutritional values
+- Finding recipes with similar nutritional ratios rather than absolute values
+
+## 🎛️ Configuration
+
+### Nutritional Limits (Daily Values):
+```python
 max_Calories = 2000
 max_daily_fat = 100
 max_daily_Saturatedfat = 13
@@ -78,45 +131,54 @@ max_daily_Carbohydrate = 325
 max_daily_Fiber = 40
 max_daily_Sugar = 40
 max_daily_Protein = 200
-max_list = [max_Calories, max_daily_fat, max_daily_Saturatedfat, max_daily_Cholesterol, 
-           max_daily_Sodium, max_daily_Carbohydrate, max_daily_Fiber, max_daily_Sugar, max_daily_Protein]
-
-# Input nutritional values to match (Calories, Fat, SatFat, Cholesterol, Sodium, Carbs, Fiber, Sugar, Protein)
-reference_nutrition = np.array([[350, 20, 5, 70, 600, 12, 3, 5, 35]])
-
-# Get recommendations
-recommendations = recommand(dataset, reference_nutrition, max_list)
 ```
 
-### Finding Recipes with Specific Ingredients
+### Model Parameters:
+- `n_neighbors`: 10 (default)
+- `metric`: 'cosine'
+- `algorithm`: 'brute'
 
-```python
-# Search for recipes containing eggs
-egg_recipes = recommand(dataset, reference_nutrition, max_list, ingredient_filter=["egg"])
+## 📝 Example Output
 
-# Multiple ingredient filtering
-vegetarian_recipes = recommand(dataset, reference_nutrition, max_list, 
-                              ingredient_filter=["tofu", "vegetable"])
+```
+RecipeId    Name                           Calories  FatContent  ProteinContent
+352371      Spicy Tuna Steaks             466.7     24.9        54.5
+495731      Crunchy Baked Salmon          515.7     27.9        56.9
+164375      Hungarian Chicken Paprikash   360.3     19.2        34.9
 ```
 
-## How It Works
+## 🔮 Future Enhancements
 
-1. **Data Extraction**: The system first filters recipes based on nutritional constraints and optional ingredient requirements
-2. **Feature Scaling**: Nutritional values are standardized to ensure fair comparisons
-3. **KNN Modeling**: The K-Nearest Neighbors algorithm finds recipes with similar nutritional profiles
-4. **Recommendation**: The system returns the most similar recipes to the reference input
+- [ ] Add ingredient-based similarity
+- [ ] Implement user preference learning
+- [ ] Add recipe difficulty scoring
+- [ ] Include allergen filtering
+- [ ] Web interface development
+- [ ] Recipe rating integration
+- [ ] Collaborative filtering features
 
-## Function Reference
+## 🤝 Contributing
 
-- `extract_data()`: Filters recipes based on nutritional maximums and ingredient requirements
-- `scaling()`: Standardizes nutritional features for comparison
-- `nn_predictor()`: Creates and trains the KNN model
-- `build_pipeline()`: Constructs the recommendation pipeline
-- `recommand()`: Main function that orchestrates the recommendation process
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Future Improvements
+## 📄 License
 
-- Implement recipe rating prediction based on user preferences
-- Add support for dietary restrictions (gluten-free, vegan, etc.)
-- Develop a web interface for easier access to recommendations
-- Incorporate flavor profile analysis for more nuanced recommendations
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📧 Contact
+
+For questions, suggestions, or issues, please open an issue on GitHub or contact [your-email@example.com].
+
+## 🙏 Acknowledgments
+
+- Dataset providers for the comprehensive recipe database
+- Scikit-learn community for excellent ML tools
+- Contributors and testers who helped improve the system
+
+---
+
+**Note**: This system is designed for educational and research purposes. Nutritional recommendations should be validated with healthcare professionals for dietary planning.
